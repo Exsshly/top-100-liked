@@ -160,9 +160,8 @@ LeetCode 热题 100 Java 常规题解
         if (sLen < pLen) return res;
         Map<Character, Integer> sMap = new HashMap<>();
         Map<Character, Integer> pMap = new HashMap<>();
-        for (int i = 0; i < pLen; i++) {
+        for (int i = 0; i < pLen; i++)
             pMap.put(p.charAt(i), pMap.getOrDefault(p.charAt(i), 0) + 1);
-        }
         for (int i = 0; i < pLen; i++)
             sMap.put(s.charAt(i), sMap.getOrDefault(s.charAt(i), 0) + 1);
 
