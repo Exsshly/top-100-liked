@@ -686,7 +686,6 @@ LeetCode 热题 100 Java 常规题解
         head.next = reverseKGroup(tail, k);
         return newHead;
     }
-
     public ListNode reverse(ListNode head, ListNode tail) {
         ListNode pre = null;
         while (head != tail) {
