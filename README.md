@@ -9,7 +9,8 @@ LeetCode 热题 100 Java 常规题解
     public int[] twoSum(int[] nums, int target) {
         Map<Integer, Integer> map = new HashMap<>();
         for (int i = 0; i < nums.length; i++) {
-            if (map.containsKey(target - nums[i])) return new int[]{map.get(target - nums[i]), i};
+            if (map.containsKey(target - nums[i]))
+            	return new int[]{map.get(target - nums[i]), i};
             map.put(nums[i], i);
         }
         return new int[0];
@@ -25,7 +26,8 @@ LeetCode 热题 100 Java 常规题解
             char[] chars = str.toCharArray();
             Arrays.sort(chars);
             String sortedStr = new String(chars);
-            if (!map.containsKey(sortedStr)) map.put(sortedStr, new ArrayList<>());
+            if (!map.containsKey(sortedStr))
+            	map.put(sortedStr, new ArrayList<>());
             map.get(sortedStr).add(str);
         }
         return new ArrayList<>(map.values());
@@ -40,7 +42,8 @@ LeetCode 热题 100 Java 常规题解
         for (int num : nums) set.add(num);
         int res = 0, cur = 0;
         for (int num : set) {
-            if (set.contains(num - 1)) continue;
+            if (set.contains(num - 1))
+            	continue;
             cur = 1;
             int next = num + 1;
             while (set.contains(next)) {
@@ -61,15 +64,14 @@ LeetCode 热题 100 Java 常规题解
     public void moveZeroes(int[] nums) {
         int count = 0;
         for (int num : nums)
-            if (num == 0) count++;
+            if (num == 0)
+            	count++;
         int offset = 0;
         for (int num : nums)
             if (num != 0)
                 nums[offset++] = num;
-        while (count > 0) {
-            nums[nums.length - count] = 0;
-            count--;
-        }
+        while (count > 0)
+            nums[nums.length - count--] = 0;
     }
 ```
 
@@ -95,16 +97,21 @@ LeetCode 热题 100 Java 常规题解
     public List<List<Integer>> threeSum(int[] nums) {
         List<List<Integer>> res = new ArrayList<>();
         Arrays.sort(nums);
-        if (nums[0] > 0 || nums[0] + nums[1] + nums[2] > 0) return res;
-        for (int i = 0; i < nums.length; i++) {
+        if (nums[0] > 0 || nums[0] + nums[1] + nums[2] > 0)
+        	return res;
+        for (int i = 0; i < nums.length - 2; i++) {
             if (i > 0 && nums[i] == nums[i-1]) continue;
             int left = i + 1, right = nums.length - 1;
             while (left < right) {
                 if (nums[i] + nums[left] + nums[right] == 0) {
-                    List<Integer> inn = new ArrayList<>();
-                    inn.add(nums[i]);
-                    inn.add(nums[left]);
-                    inn.add(nums[right]);
+                    List<Integer> inn = new ArrayList<>() {{
+                    	add(nums[i]);
+                    	add(nums[left]);
+                    	add(nums[right]);
+                    }};
+                     /* List<Integer> inn
+                     = new ArrayList<Integer>(Arrays.asList(nums[i], nums[left], nums[right]));
+                     */
                     res.add(inn);
                     while (left < right && nums[left] == nums[left+1]) left++;
                     while (left < right && nums[right] == nums[right-1]) right--;
@@ -123,11 +130,31 @@ LeetCode 热题 100 Java 常规题解
 ```java
     public int trap(int[] height) {
         int res = 0, left = 0, right = height.length - 1;
-        int leftMax = 0, rightMax = 0;
+        int leftHeightest = 0, rightHeightest = 0;
         while (left < right) {
-            leftMax = Math.max(leftMax, height[left]);
-            rightMax = Math.max(rightMax, height[right]);
-            res += leftMax < rightMax ? leftMax - height[left++] : rightMax - height[right--];
+            leftHeightest = Math.max(leftHeightest, height[left]);
+            rightHeightest = Math.max(rightHeightest, height[right]);
+            res += leftHeightest < rightHeightest ?
+                leftHeightest - height[left++] : rightHeightest - height[right--];
+        }
+        return res;
+    }
+```
+
+```java
+    public int trap(int[] height) {
+        int left = 0, right = height.length - 1;
+        int leftHeightest = 0, rightHeightest = 0, res = 0;
+        while (left < right) {
+            leftHeightest = Math.max(leftHeightest, height[left]);
+            rightHeightest = Math.max(rightHeightest, height[right]);
+            if (leftHeightest < rightHeightest) {
+                res += leftHeightest - height[left];
+                left++;
+            } else {
+                res += rightHeightest - height[right];
+                right--;
+            }
         }
         return res;
     }
@@ -210,7 +237,8 @@ LeetCode 热题 100 Java 常规题解
     public int[] maxSlidingWindow(int[] nums, int k) {
         int[] res = new int[nums.length - k + 1];
         TreeMap<Integer, Integer> map = new TreeMap<>();
-        for (int i = 0; i < k; i++) map.put(nums[i], map.getOrDefault(nums[i], 0) + 1);
+        for (int i = 0; i < k; i++)
+        	map.put(nums[i], map.getOrDefault(nums[i], 0) + 1);
         int idx = 0;
         res[idx++] = map.lastKey();
         int left = 0, right = k;
@@ -370,22 +398,16 @@ LeetCode 热题 100 Java 常规题解
     public void setZeroes(int[][] matrix) {
         Set<Integer> rows = new HashSet<>();
         Set<Integer> cols = new HashSet<>();
-        int m = matrix.length, n = matrix[0].length;
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
+        for (int i = 0; i < matrix.length; i++)
+            for (int j = 0; j <matrix[0].length; j++)
                 if (matrix[i][j] == 0) {
                     rows.add(i);
                     cols.add(j);
                 }
-            }
-        }
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
-                if (rows.contains(i) || cols.contains(j)) {
+        for (int i = 0; i < matrix.length; i++)
+            for (int j = 0; j <matrix[0].length; j++)
+                if (rows.contains(i) || cols.contains(j))
                     matrix[i][j] = 0;
-                }
-            }
-        }
     }
 ```
 
@@ -481,16 +503,15 @@ LeetCode 热题 100 Java 常规题解
 
 ```java
     public boolean isPalindrome(ListNode head) {
-        List<Integer> nums = new ArrayList<>();
-        while (head != null) {
-            nums.add(node.val);
-            head = head.next;
+        List<Integer> arr = new ArrayList<>();
+        ListNode dummy = head;
+        while (dummy != null) {
+            arr.add(dummy.val);
+            dummy = dummy.next;
         }
-        int l = 0, r = nums.size() - 1;
-        while (l < r) {
-            if (nums.get(l++) != nums.get(r--))
+        for (int i = 0, j = arr.size() - 1; i < j; i++, j--)
+            if (arr.get(i) != arr.get(j))
                 return false;
-        }
         return true;
     }
 ```
@@ -501,10 +522,11 @@ LeetCode 热题 100 Java 常规题解
     public boolean hasCycle(ListNode head) {
     	if (head == null || head.next == null) return false;
         ListNode fast = head, slow = head;
-        while (fast.next.next != null && slow.next != null) {
+        while (fast != null && fast.next != null) {
             fast = fast.next.next;
             slow = slow.next;
-            if (fast == slow) return true;
+            if (fast == slow)
+            	return true;
         }
         return false;
     }
@@ -557,10 +579,8 @@ LeetCode 热题 100 Java 常规题解
 
 ```java
     public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
-        ListNode dummy = new ListNode(0);
-        ListNode head = dummy;
+        ListNode dummy = new ListNode(-1), head = dummy;
         int carry = 0;
-
         while (l1 != null || l2 != null || carry != 0) {
             int sum = carry;
             if (l1 != null) {
@@ -573,11 +593,10 @@ LeetCode 热题 100 Java 常规题解
             }
             carry = sum / 10;
             sum %= 10;
-            head.next = new ListNode(sum);
-            head = head.next;
+            dummy.next = new ListNode(sum);
+            dummy = dummy.next;
         }
-        
-        return dummy.next;
+        return head.next;
     }
 ```
 
@@ -621,6 +640,7 @@ LeetCode 热题 100 Java 常规题解
 ### 25.K个一组翻转链表
 
 ```java
+	// 非递归
     public ListNode reverseKGroup(ListNode head, int k) {
         ListNode vhead = new ListNode(-1);
         vhead.next = head;
@@ -640,7 +660,6 @@ LeetCode 热题 100 Java 常规题解
         }
         return vhead.next;
     }
-
     public ListNode reverse(ListNode head) {
         ListNode pre = null;
         ListNode cur = head;
@@ -654,26 +673,49 @@ LeetCode 热题 100 Java 常规题解
     }
 ```
 
+```java
+	// 递归
+	public ListNode reverseKGroup(ListNode head, int k) {
+        if (head == null) return null;
+        ListNode tail = head;
+        for (int i = 0; i < k; i++) {
+            if (tail == null) return head;
+            tail = tail.next;
+        }
+        ListNode newHead = reverse(head, tail);
+        head.next = reverseKGroup(tail, k);
+        return newHead;
+    }
+
+    public ListNode reverse(ListNode head, ListNode tail) {
+        ListNode pre = null;
+        while (head != tail) {
+            ListNode next = head.next;
+            head.next = pre;
+            pre = head;
+            head = next;
+        }
+        return pre;
+    }
+```
+
 ### 138.随机链表的复制
 
 ```java
     public Node copyRandomList(Node head) {
         if (head == null) return null;
         Map<Node, Node> map = new HashMap<>();
-        Node p = head;
-        while (p != null) {
-            Node newNode = new Node(p.val);
-            map.put(p, newNode);
-            p = p.next;
+        Node cur = head;
+        while (cur != null) {
+            map.put(cur, new Node(cur.val));
+            cur = cur.next;
         }
-        p = head;
-        while (p != null) {
-            Node newNode = map.get(p);
-            if (p.next != null)
-                newNode.next = map.get(p.next);
-            if (p.random != null)
-                newNode.random = map.get(p.random);
-            p = p.next;
+        cur = head;
+        while (cur != null) {
+            Node node = map.get(cur);
+            node.next = map.get(cur.next);
+            node.random = map.get(cur.random);
+            cur = cur.next;
         }
         return map.get(head);
     }
@@ -682,6 +724,7 @@ LeetCode 热题 100 Java 常规题解
 ### 148.排序链表
 
 ```java
+	// logN 空间
     public ListNode sortList(ListNode head) {
         if (head == null || head.next == null) return head;
         ListNode fast = head, slow = head;
@@ -710,12 +753,63 @@ LeetCode 热题 100 Java 常规题解
     }
 ```
 
+```java
+	// 常数空间
+    public ListNode sortList(ListNode head) {
+        if (head == null || head.next == null) return head;
+        int len = 0;
+        ListNode curr = head;
+        while (curr != null) {
+            len++;
+            curr = curr.next;
+        }
+        ListNode dummy = new ListNode(0);
+        dummy.next = head;
+        for (int step = 1; step < len; step <<= 1) {
+            ListNode tail = dummy;
+            ListNode curr = dummy.next;
+            while (curr != null) {
+                ListNode left = curr;
+                ListNode right = split(left, step);
+                curr = split(right, step);
+                tail = merge(left, right, tail);
+            }
+        }
+        return dummy.next;
+    }
+    private ListNode split(ListNode head, int k) {
+        for (int i = 1; head != null && i < k; i++) {
+            head = head.next;
+        }
+        if (head == null) return null;
+        ListNode next = head.next;
+        head.next = null;
+        return next;
+    }
+    private ListNode merge(ListNode l1, ListNode l2, ListNode tail) {
+        ListNode curr = tail;
+        while (l1 != null && l2 != null) {
+            if (l1.val <= l2.val) {
+                curr.next = l1;
+                l1 = l1.next;
+            } else {
+                curr.next = l2;
+                l2 = l2.next;
+            }
+            curr = curr.next;
+        }
+        curr.next = (l1 != null) ? l1 : l2;
+        while (curr.next != null) curr = curr.next;
+        return curr;
+    }
+```
+
 ### 23.合并K个升序链表
 
 ```java
     public ListNode mergeKLists(ListNode[] lists) {
         PriorityQueue<ListNode> pq = new PriorityQueue<>((a, b) -> a.val - b.val);
-        ListNode head = new ListNode(-1), cur = head;
+        ListNode dummy = new ListNode(-1), cur = dummy;
         for (ListNode node : lists)
             if (node != null)
                 pq.offer(node);
@@ -725,7 +819,7 @@ LeetCode 热题 100 Java 常规题解
             if (cur.next != null)
                 pq.offer(cur.next);
         }
-        return head.next;
+        return dummy.next;
     }
 ```
 
@@ -818,13 +912,12 @@ LeetCode 热题 100 Java 常规题解
 
 ```java
     public boolean isSymmetric(TreeNode root) {
-        return checkSymmetric(root.left, root.right);
+        return check(root.left, root.right);
     }
-
-    public boolean checkSymmetric(TreeNode p, TreeNode q) {
+    public boolean check(TreeNode p, TreeNode q) {
         if (p == null && q == null) return true;
         if (p == null || q == null) return false;
-        return p.val == q.val && checkSymmetric(p.left, q.right) && checkSymmetric(p.right, q.left);
+        return p.val == q.val && check(p.left, q.right) && check(p.right, q.left);
     }
 ```
 
@@ -853,16 +946,15 @@ LeetCode 热题 100 Java 常规题解
         List<List<Integer>> res = new ArrayList<>();
         Deque<TreeNode> que = new ArrayDeque<>();
         if (root == null) return res;
-        que.addFirst(root);
+        que.addLast(root);
         while (!que.isEmpty()) {
             int size = que.size();
             List<Integer> inner = new ArrayList<>();
-            TreeNode node = null;
             while (size-- > 0) {
-                node = que.pollFirst();
+                TreeNode node = que.pollFirst();
                 inner.add(node.val);
-                if (node.left != null) que.addLast(node.left);
-                if (node.right != null) que.addLast(node.right);
+                if (node.left != null) que.add(node.left);
+                if (node.right != null) que.add(node.right);
             }
             res.add(inner);
         }
@@ -948,6 +1040,7 @@ LeetCode 热题 100 Java 常规题解
 ### 114.二叉树展开为链表
 
 ```java
+	// O(1)
     public void flatten(TreeNode root) {
         TreeNode cur = root;
         while (cur != null) {
@@ -961,6 +1054,26 @@ LeetCode 热题 100 Java 常规题解
             }
             cur = cur.right;
         }
+    }
+```
+    
+```java
+	// O(n)
+	List<Integer> arr = new ArrayList<>();
+    public void flatten(TreeNode root) {
+        preorder(root);
+        TreeNode cur = root;
+        for (int i = 1; i < arr.size(); i++) {
+            cur.left = null;
+            cur.right = new TreeNode(arr.get(i));
+            cur = cur.right;
+        }
+    }
+    public void preorder(TreeNode root) {
+        if (root == null) return;
+        arr.add(root.val);
+        preorder(root.left);
+        preorder(root.right);
     }
 ```
 
@@ -977,8 +1090,10 @@ LeetCode 热题 100 Java 常规题解
                 break;
             }
         }
-        root.left = buildTree(subArray(preorder, 1, inorderRootIndex + 1), subArray(inorder, 0, inorderRootIndex));
-        root.right = buildTree(subArray(preorder, inorderRootIndex + 1, preorder.length), subArray(inorder, inorderRootIndex + 1, inorder.length));
+        root.left = buildTree(subArray(preorder, 1, inorderRootIndex + 1),
+        	subArray(inorder, 0, inorderRootIndex));
+        root.right = buildTree(subArray(preorder, inorderRootIndex + 1, preorder.length),
+        	subArray(inorder, inorderRootIndex + 1, inorder.length));
         return root;
     }
     public int[] subArray(int[] array, int start, int end) {
@@ -994,7 +1109,8 @@ LeetCode 热题 100 Java 常规题解
     public boolean hasPathSum(TreeNode root, int targetSum) {
         if (root == null) return false;
         targetSum -= root.val;
-        if (root.left == null && root.right == null) return targetSum == 0;
+        if (root.left == null && root.right == null)
+        	return targetSum == 0;
         return hasPathSum(root.left, targetSum) || hasPathSum(root.right, targetSum);
     }
 ```
@@ -1002,8 +1118,8 @@ LeetCode 热题 100 Java 常规题解
 ### 113.路径总和Ⅱ
 
 ```java
-    LinkedList<List<Integer>> res = new LinkedList<>();
-    LinkedList<Integer> path = new LinkedList<>();
+    List<Integer> path = new ArrayList<>();
+    List<List<Integer>> res = new ArrayList<>();
     public List<List<Integer>> pathSum(TreeNode root, int targetSum) {
         recur(root, targetSum);
         return res;
@@ -1013,7 +1129,7 @@ LeetCode 热题 100 Java 常规题解
         path.add(root.val);
         targetSum -= root.val;
         if (targetSum == 0 && root.left == null && root.right == null)
-            res.add(new LinkedList<Integer>(path));
+            res.add(new ArrayList<Integer>(path));
         recur(root.left, targetSum);
         recur(root.right, targetSum);
         path.removeLast();
@@ -1025,14 +1141,18 @@ LeetCode 热题 100 Java 常规题解
 ```java
     public int pathSum(TreeNode root, int targetSum) {
         if (root == null) return 0;
-        return countPath(root, targetSum) + countPath(root.left, targetSum) + countPath(root.right, targetSum);
+        int res = countPath(root, targetSum);
+        res += pathSum(root.left, targetSum);
+        res += pathSum(root.right, targetSum);
+        return res;
     }
-    public int countPath(TreeNode root, int targetSum) {
-        if (root == null) return 0;
+    public int countPath(TreeNode node, int targetSum) {
+        if (node == null) return 0;
         int count = 0;
-        if (root.val == targetSum) count++;
-        count += countPath(root.left, targetSum - root.val);
-        count += countPath(root.right, targetSum - root.val);
+        if (targetSum == node.val)
+            count++;
+        count += countPath(node.left, targetSum - node.val);
+        count += countPath(node.right, targetSum - node.val);
         return count;
     }
 ```
@@ -1044,10 +1164,9 @@ LeetCode 热题 100 Java 常规题解
         if (root == null || root == p || root == q) return root;
         TreeNode left = lowestCommonAncestor(root.left, p, q);
         TreeNode right = lowestCommonAncestor(root.right, p, q);
-        if (left != null && right != null) return root;
-        else if (left != null && right == null) return left;
-        else if (left == null && right != null) return right;
-        return null;
+        if (left != null && right != null)
+            return root;
+        return left == null ? right : left;
     }
 ```
 
@@ -1103,42 +1222,42 @@ LeetCode 热题 100 Java 常规题解
 
 ```java
     public int orangesRotting(int[][] grid) {
-        Deque<int[]> deque = new ArrayDeque<>();
+        Deque<int[]> que = new ArrayDeque<>();
         int m = grid.length, n = grid[0].length;
         int time = 0, good = 0;
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
                 if (grid[i][j] == 2)
-                    deque.addLast(new int[]{i, j});
+                    que.addLast(new int[]{i, j});
                 else if (grid[i][j] == 1)
                     good++;
             }
         }
-        if (deque.isEmpty()) return good == 0 ? 0 : -1;
-        while (!deque.isEmpty()) {
+        if (que.isEmpty()) return good == 0 ? 0 : -1;
+        while (!que.isEmpty()) {
             boolean flag = false;
-            int size = deque.size();
+            int size = que.size();
             while (size-- > 0) {
-                int[] cur = deque.pollFirst();
-                int i = cur[0], j = cur[1];
+                int[] rotPos = que.pollFirst();
+                int i = rotPos[0], j = rotPos[1];
                 if (i - 1 >= 0 && grid[i-1][j] == 1) {
                     grid[i-1][j] = 2;
-                    deque.addLast(new int[]{i-1, j});
+                    que.addLast(new int[]{i-1, j});
                     flag = true;
                 }
                 if (i + 1 < m && grid[i+1][j] == 1) {
                     grid[i+1][j] = 2;
-                    deque.addLast(new int[]{i+1, j});
+                    que.addLast(new int[]{i+1, j});
                     flag = true;
                 }
                 if (j - 1 >= 0 && grid[i][j-1] == 1) {
                     grid[i][j-1] = 2;
-                    deque.addLast(new int[]{i, j - 1});
+                    que.addLast(new int[]{i, j - 1});
                     flag = true;
                 }
                 if (j + 1 < n && grid[i][j+1] == 1) {
                     grid[i][j+1] = 2;
-                    deque.addLast(new int[]{i, j + 1});
+                    que.addLast(new int[]{i, j + 1});
                     flag = true;
                 }
             }
@@ -1146,8 +1265,10 @@ LeetCode 热题 100 Java 常规题解
         }
         for (int i = 0; i < m; i++)
             for (int j = 0; j < n; j++)
-                if (grid[i][j] == 1) return -1;
-        if (time == 0 && good == 0) return 0;
+                if (grid[i][j] == 1)
+                    return -1;
+        if (time == 0 && good == 0)
+            return 0;
         return time;
     }
 ```
@@ -1156,33 +1277,33 @@ LeetCode 热题 100 Java 常规题解
 
 ```java
     public boolean canFinish(int numCourses, int[][] prerequisites) {
-        int[] beforeCounts = new int[numCourses];
-        List<List<Integer>> postCourses = new ArrayList<>();
+        int[] inDegree = new int[numCourses];
+        List<List<Integer>> postCourse = new ArrayList<>();
         for (int i = 0; i < numCourses; i++)
-            postCourses.add(new ArrayList<>());
+            postCourse.add(new ArrayList<>());
         for (int[] prerequisite : prerequisites) {
             int course = prerequisite[0];
-            int preCourse = prerequisite[1];
-            beforeCounts[course]++;
-            postCourses.get(preCourse).add(course);
+            int prerequisiteCourse = prerequisite[1];
+            inDegree[course]++;
+            postCourse.get(prerequisiteCourse).add(course);
         }
-        Queue<Integer> queue = new LinkedList<>();
-        for (int i = 0; i < numCourses; i ++)
-            if (beforeCounts[i] == 0)
-                queue.add(i);
-        int count = 0;
-        while (!queue.isEmpty()) {
-            int selectOne = queue.poll();
-            count++;
-            List<Integer> nextCourses = postCourses.get(selectOne);
+        Deque<Integer> que = new ArrayDeque<>();
+        for (int i = 0; i < numCourses; i++)
+            if (inDegree[i] == 0)
+                que.offer(i);
+        int completedCoursesCount = 0;
+        while (!que.isEmpty()) {
+            int currentCourse = que.poll();
+            completedCoursesCount++;
+            List<Integer> nextCourses = postCourse.get(currentCourse);
             for (int nextCourse : nextCourses) {
-                beforeCounts[nextCourse]--;
-                if (beforeCounts[nextCourse] == 0) {
-                    queue.add(nextCourse);
+                inDegree[nextCourse]--;
+                if (inDegree[nextCourse] == 0) {
+                    que.offer(nextCourse);
                 }
             }
         }
-        return count == numCourses;
+        return completedCoursesCount == numCourses;
     }
 ```
 
@@ -1244,8 +1365,8 @@ LeetCode 热题 100 Java 常规题解
 ### 46.全排列
 
 ```java
-    List<List<Integer>> res = new ArrayList<>();
     List<Integer> path = new ArrayList<>();
+    List<List<Integer>> res = new ArrayList<>();
     public List<List<Integer>> permute(int[] nums) {
         boolean[] isVisited = new boolean[nums.length];
         backtracking(nums, isVisited);
@@ -1267,8 +1388,8 @@ LeetCode 热题 100 Java 常规题解
 ### 78.子集
 
 ```java
-    List<List<Integer>> res = new ArrayList<>();
     List<Integer> path = new ArrayList<>();
+    List<List<Integer>> res = new ArrayList<>();
     public List<List<Integer>> subsets(int[] nums) {
         backtracking(nums, 0);
         return res;
@@ -1300,8 +1421,7 @@ LeetCode 热题 100 Java 常规题解
             res.add(sb.toString());
             return;
         }
-        int index = digits.charAt(pos) - '0';
-        String key = keyboard[index];
+        String key = keyboard[digits.charAt(pos) - '0'];
         for (int i = 0; i < key.length(); i++) {
             sb.append(key.charAt(i));
             backtracking(digits, pos + 1);
@@ -1313,17 +1433,16 @@ LeetCode 热题 100 Java 常规题解
 ### 39.组合总和
 
 ```java
-    List<List<Integer>> res = new ArrayList<>();
-    List<Integer> path = new ArrayList<>();
+	List<Integer> path = new ArrayList<>();
+    List<List<Integer>> res = new ArrayList<>();    
     public List<List<Integer>> combinationSum(int[] candidates, int target) {
         backtrack(candidates, target, 0, 0);
         return res;
     }
 
     public void backtrack(int[] candidates, int target, int curSum, int idx) {
-        if (curSum == target) {
+        if (curSum == target)
             res.add(new ArrayList<>(path));
-        }
         for (int i = idx; i < candidates.length; i++) {
             if (curSum+candidates[i] > target) continue;
             path.add(candidates[i]);
@@ -1366,25 +1485,26 @@ LeetCode 热题 100 Java 常规题解
 
 ```java
     public boolean exist(char[][] board, String word) {
-        int row = board.length, col = board[0].length, len = word.length();
-        boolean[][] visited = new boolean[row][col];
-        for (int i = 0; i < row; i++) {
-            for (int j = 0; j < col; j++) {
-                if (dfs(board, visited, word, len, i, j, 0))
+        boolean[][] isVisited = new boolean[board.length][board[0].length];
+        int len = word.length();
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[0].length; j++) {
+                if (dfs(board, isVisited, word, len, i, j, 0))
                     return true;
             }
         }
         return false;
     }
-    public boolean dfs(char[][] board, boolean[][] visited, String word, int len, int i, int j, int idx) {
+    public boolean dfs(char[][] board, boolean[][] isVisited, String word, int len, int i, int j, int idx) {
         if (idx == len) return true;
-        if (i < 0 || i >= board.length || j < 0 || j >= board[0].length || visited[i][j] == true || board[i][j] != word.charAt(idx)) return false;
-        visited[i][j] = true;
-        if (dfs(board, visited, word, len, i - 1, j, idx+1)) return true;
-        if (dfs(board, visited, word, len, i + 1, j, idx+1)) return true;
-        if (dfs(board, visited, word, len, i, j - 1, idx+1)) return true;
-        if (dfs(board, visited, word, len, i, j + 1, idx+1)) return true;
-        visited[i][j] = false;
+        if (i < 0 || i >= board.length || j < 0 || j >= board[0].length ||
+                isVisited[i][j] == true || board[i][j] != word.charAt(idx)) return false;
+        isVisited[i][j] = true;
+        if (dfs(board, isVisited, word, len, i - 1, j, idx+1)) return true;
+        if (dfs(board, isVisited, word, len, i + 1, j, idx+1)) return true;
+        if (dfs(board, isVisited, word, len, i, j - 1, idx+1)) return true;
+        if (dfs(board, isVisited, word, len, i, j + 1, idx+1)) return true;
+        isVisited[i][j] = false;
         return false;
     }
 ```
@@ -1393,7 +1513,7 @@ LeetCode 热题 100 Java 常规题解
 
 ```java
     List<List<String>> res = new ArrayList<>();
-    Deque<String> deque = new ArrayDeque<>();
+    Deque<String> que = new ArrayDeque<>();
     int length = 0;
     public List<List<String>> partition(String s) {
         length = s.length();
@@ -1401,21 +1521,20 @@ LeetCode 热题 100 Java 常规题解
         return res;
     }
     public void backtracking(String s, int idx) {
-        if (idx >= length) res.add(new ArrayList<>(deque));
+        if (idx >= length) res.add(new ArrayList<>(que));
         for (int i = idx; i < length; i++) {
             if (judge(s, idx, i)) {
-                String str = s.substring(idx, i + 1);
-                deque.addLast(str);
-            } else {
-                continue;
-            }
+                String str = s.substring(idx, i+1);
+                que.addLast(str);
+            } else continue;
             backtracking(s, i + 1);
-            deque.removeLast();
+            que.removeLast();
         }
     }
-    public boolean judge(String s, int start, int end) {
-        for (int i = start, j = end; i < j; i++)
-            if (s.charAt(i) != s.charAt(j)) return false;
+    public boolean judge(String s, int p, int q) {
+        while (p < q)
+            if (s.charAt(p++) != s.charAt(q--))
+                return false;
         return true;
     }
 ```
@@ -1424,7 +1543,6 @@ LeetCode 热题 100 Java 常规题解
 
 ```java
     List<List<String>> res = new ArrayList<>();
-
     public List<List<String>> solveNQueens(int n) {
         char[][] board = new char[n][n];
         for (char[] ch : board) Arrays.fill(ch, '.');
@@ -1432,7 +1550,6 @@ LeetCode 热题 100 Java 常规题解
         backtrack(n, 0, board);
         return res;
     }
-
     public void backtrack(int n, int row, char[][] board) {
         if (row == n) {
             res.add(Array2List(board));
@@ -1446,7 +1563,6 @@ LeetCode 热题 100 Java 常规题解
             }
         }
     }
-
     public List<String> Array2List(char[][] board) {
         List<String> strList = new ArrayList<>();
         for (char[] row : board) {
@@ -1454,7 +1570,6 @@ LeetCode 热题 100 Java 常规题解
         }
         return strList;
     }
-
     public boolean valid(int row, int col, int n, char[][] board) {
         for (int i = 0; i < row; i++)
             if (board[i][col] == 'Q')
@@ -1534,8 +1649,10 @@ LeetCode 热题 100 Java 常规题解
         int left = 0, right = nums.length - 1;
         while (left < right) {
             int mid = left + (right - left) / 2;
-            if (nums[mid] < nums[right]) right = mid;
-            else left = mid + 1;
+            if (nums[mid] < nums[right])
+            	right = mid;
+            else
+            	left = mid + 1;
         }
         return left;
     }
@@ -1557,11 +1674,10 @@ LeetCode 热题 100 Java 常规题解
         int left = 0, right = nums.length - 1;
         while (left < right) {
             int mid = left + (right - left) / 2;
-            if (nums[mid] < nums[right]) {
+            if (nums[mid] < nums[right])
                 right = mid;
-            } else {
+            else
                 left = mid + 1;
-            }
         }
         return nums[left];
     }
@@ -1575,9 +1691,11 @@ LeetCode 热题 100 Java 常规题解
         int[] merged = new int[m + n];
         for (int i = 0; i < m; i++) merged[i] = nums1[i];
         for (int i = 0; i < n; i++) merged[m + i] = nums2[i];
-        java.util.Arrays.sort(merged);
-        if ((m + n) % 2 == 0) return (merged[(m + n) / 2 - 1] + merged[(m + n) / 2]) / 2.0;
-        else return merged[(m + n) / 2];
+        Arrays.sort(merged);
+        if ((m + n) % 2 == 0)
+        	return (merged[(m + n) / 2 - 1] + merged[(m + n) / 2]) / 2.0;
+        else
+        	return merged[(m + n) / 2];
     }
 ```
 
@@ -1676,7 +1794,8 @@ LeetCode 热题 100 Java 常规题解
         String cur = "";
         for (int i = 0; i < s.length(); i++) {
             char ch = s.charAt(i);
-            if (ch >= '0' && ch <= '9') num = num * 10 + ch - '0';
+            if (ch >= '0' && ch <= '9')
+            	num = num * 10 + ch - '0';
             else if (ch == '[') {
                 count.push(num);
                 num = 0;
@@ -1685,9 +1804,13 @@ LeetCode 热题 100 Java 常规题解
             } else if (ch == ']') {
                 int times = count.pop();
                 StringBuilder sb = new StringBuilder(str.pop());
-                while (times-- > 0) sb.append(cur);
+                while (times-- > 0) {
+                	sb.append(cur);
+                }
                 cur = sb.toString();
-            } else cur += ch;
+            } else {
+            	cur += ch;
+            	}
         }
         return cur;
     }
@@ -1697,8 +1820,8 @@ LeetCode 热题 100 Java 常规题解
 
 ```java
     public int[] dailyTemperatures(int[] temperatures) {
+        Stack<Integer> stack = new Stack<>();
         int[] res = new int[temperatures.length];
-        Deque<Integer> stack = new ArrayDeque<>();
         for (int i = 0; i < temperatures.length; i++) {
             while (!stack.isEmpty() && temperatures[i] > temperatures[stack.peek()]) {
                 int idx = stack.pop();
@@ -1717,7 +1840,7 @@ LeetCode 热题 100 Java 常规题解
         int res = 0;
         int[] newHeights = new int[heights.length + 2];
         for (int i = 0; i < heights.length; i++) newHeights[i+1] = heights[i];
-        Deque<Integer> stack = new ArrayDeque<>();
+        Stack<Integer> stack = new Stack<>();
         for (int i = 0; i < newHeights.length; i++) {
             while (!stack.isEmpty() && newHeights[i] < newHeights[stack.peek()]) {
                 int idx = stack.pop(), left = stack.peek(), right = i;
@@ -1736,10 +1859,10 @@ LeetCode 热题 100 Java 常规题解
 ```java
     public int findKthLargest(int[] nums, int k) {
         PriorityQueue<Integer> pq = new PriorityQueue<>((a, b) -> b - a);
-        for (int num : nums) pq.offer(num);
-        int res = 0;
-        while (k-- > 0) res = pq.poll();
-        return res;
+        for (int num : nums)
+            pq.add(num);
+        while (k-- > 1) pq.poll();
+        return pq.poll();
     }
 ```
 
@@ -1752,7 +1875,7 @@ LeetCode 热题 100 Java 常规题解
             map.put(num, map.getOrDefault(num, 0) + 1);
         PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> b[1] = a[1]);
         for (Map.Entry<Integer, Integer> entry : map.entrySet())
-            pq.offer(new int[]{entry.getKey(), entry.getValue()});
+            pq.add(new int[]{entry.getKey(), entry.getValue()});
         int[] res = new int[k];
         while (k-- > 0)
             res[k] = pq.poll()[0];
@@ -1763,33 +1886,30 @@ LeetCode 热题 100 Java 常规题解
 ### 295.数据流的中位数
 
 ```java
-    PriorityQueue<Integer> l = new PriorityQueue<>((a,b)->b-a);
-    PriorityQueue<Integer> r = new PriorityQueue<>((a,b)->a-b);
+    PriorityQueue<Integer> maxPQ;
+    PriorityQueue<Integer> minPQ;
+    public MedianFinder() {
+        maxPQ = new PriorityQueue<>((a, b) -> b - a);
+        minPQ = new PriorityQueue<>();
+    }
     public void addNum(int num) {
-        int s1 = l.size(), s2 = r.size();
-        if (s1 == s2) {
-            if (r.isEmpty() || num <= r.peek()) {
-                l.add(num);
-            } else {
-                l.add(r.poll());
-                r.add(num);
-            }
-        } else {
-            if (l.peek() <= num) {
-                r.add(num);
-            } else {
-                r.add(l.poll());
-                l.add(num);
-            }
-        }
+        if (maxPQ.isEmpty() || num < maxPQ.peek())
+            maxPQ.add(num);
+        else
+            minPQ.add(num);
+
+        if (maxPQ.size() > minPQ.size() + 1)
+            minPQ.add(maxPQ.poll());
+        else if (minPQ.size() > maxPQ.size() + 1)
+            maxPQ.add(minPQ.poll());
     }
     public double findMedian() {
-        int s1 = l.size(), s2 = r.size();
-        if (s1 == s2) {
-            return (l.peek() + r.peek()) / 2.0;
-        } else {
-            return l.peek();
-        }
+        if (maxPQ.size() == minPQ.size())
+            return (maxPQ.peek() + minPQ.peek()) / 2.0;
+        else if (maxPQ.size() > minPQ.size())
+            return maxPQ.peek();
+        else
+            return minPQ.peek();
     }
 ```
 
@@ -1841,13 +1961,16 @@ LeetCode 热题 100 Java 常规题解
 
 ```java
     public List<Integer> partitionLabels(String s) {
-        int[] lastPos = new int[26];
-        int len = s.length();
-        for (int i = 0; i < len; i++) lastPos[s.charAt(i) - 'a'] = i;
         List<Integer> res = new ArrayList<>();
+        int[] lastPos = new int[26];
+        for (int i = 0; i < s.length(); i++) {
+            char ch = s.charAt(i);
+            lastPos[ch - 'a'] = i;
+        }
         int start = 0, end = 0;
-        for (int i = 0; i < len; i++) {
-            end = Math.max(end, lastPos[s.charAt(i) - 'a']);
+        for (int i = 0; i < s.length(); i++) {
+            char ch = s.charAt(i);
+            end = Math.max(end, lastPos[ch - 'a']);
             if (i == end) {
                 res.add(end - start + 1);
                 start = end + 1;
@@ -1864,7 +1987,7 @@ LeetCode 热题 100 Java 常规题解
 ```java
     public int climbStairs(int n) {
         if (n == 1) return 1;
-        int[] dp = new int[n+1];
+        int[] dp = new int[n + 1];
         dp[1] = 1;
         dp[2] = 2;
         for (int i = 3; i <= n; i++)
@@ -1939,17 +2062,14 @@ LeetCode 热题 100 Java 常规题解
 
 ```java
     public int coinChange(int[] coins, int amount) {
-        int[] memo = new int[amount+1];
-        Arrays.fill(memo, amount + 1);
-        memo[0] = 0;
-        for (int i = 1; i <= amount; i++) {
-            for (int j = 0; j < coins.length; j++) {
-                if (coins[j] <= i) {
-                    memo[i] = Math.min(memo[i], memo[i-coins[j]] + 1);
-                }
-            }
-        }
-        return memo[amount] == amount + 1 ? -1 : memo[amount];
+        int[] dp = new int[amount + 1];
+        Arrays.fill(dp, amount + 1);
+        dp[0] = 0;
+        for (int i = 1; i <= amount; i++)
+            for (int j = 0; j < coins.length; j++)
+                if (coins[j] <= i)
+                    dp[i] = Math.min(dp[i], dp[i-coins[j]] + 1);
+        return dp[amount] == amount + 1 ? -1 : dp[amount];
     }
 ```
 
@@ -2049,7 +2169,9 @@ LeetCode 热题 100 Java 常规题解
         }
         return res;
     }
+```
 
+```java
 	public int longestValidParentheses(String s) {
        if(s == null || s.length() < 2) return 0;
        int len = s.length(), res = 0;
@@ -2093,8 +2215,10 @@ LeetCode 热题 100 Java 常规题解
     public int minPathSum(int[][] grid) {
         int[][] dp = new int[grid.length][grid[0].length];
         dp[0][0] = grid[0][0];
-        for (int i = 1; i < grid.length; i++) dp[i][0] = dp[i-1][0] + grid[i][0];
-        for (int i = 1; i < grid[0].length; i++) dp[0][i] = dp[0][i-1] + grid[0][i];
+        for (int i = 1; i < grid.length; i++)
+        	dp[i][0] = dp[i-1][0] + grid[i][0];
+        for (int i = 1; i < grid[0].length; i++)
+        	dp[0][i] = dp[0][i-1] + grid[0][i];
         for (int i = 1; i < grid.length; i++)
             for (int j = 1; j < grid[0].length; j++)
                 dp[i][j] = grid[i][j] + Math.min(dp[i-1][j], dp[i][j-1]);
@@ -2191,12 +2315,10 @@ LeetCode 热题 100 Java 常规题解
 
 ```java
     public int singleNumber(int[] nums) {
-        Set<Integer> set = new HashSet<>();
-        for (int num : nums) {
-            if (!set.contains(num)) set.add(num);
-            else set.remove(num);
-        }
-        return set.iterator().next();
+        int res = 0;
+        for (int num : nums)
+            res ^= num;
+        return res;
     }
 ```
 
@@ -2239,10 +2361,12 @@ LeetCode 热题 100 Java 常规题解
 ```java
     public void nextPermutation(int[] nums) {
         int i = nums.length - 2;
-        while (i >= 0 && nums[i] >= nums[i+1]) i--;
+        while (i >= 0 && nums[i] >= nums[i+1])
+        	i--;
         if (i >= 0) {
             int j = nums.length - 1;
-            while (nums[j] <= nums[i]) j--;
+            while (nums[j] <= nums[i])
+            	j--;
             swap(nums, i, j);
         }
         reverse(nums, i+1, nums.length - 1);
@@ -2253,7 +2377,8 @@ LeetCode 热题 100 Java 常规题解
         nums[j] = T;
     }
     public void reverse(int[] nums, int left, int right) {
-        while (left < right) swap(nums, left++, right--);
+        while (left < right)
+        	swap(nums, left++, right--);
     }
 ```
 
