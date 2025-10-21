@@ -2250,7 +2250,9 @@ LeetCode 热题 100 Java 常规题解
         }
         return s.substring(startIdx, endIdx+1);
     }
+```
 
+```java
     // 中心拓展法
     public String longestPalindrome(String s) {
         int start = 0, end = 0, length = s.length();
