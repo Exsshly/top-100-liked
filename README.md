@@ -354,17 +354,17 @@ LeetCode 热题 100 Java 常规题解
 
 ```java
     public int[] productExceptSelf(int[] nums) {
-        int[] L = new int[nums.length];
-        int[] R = new int[nums.length];
-        L[0] = 1;
+        int[] part1 = new int[nums.length];
+        int[] part2 = new int[nums.length];
+        part1[0] = 1;
+        part2[nums.length - 1] = 1;
         for (int i = 1; i < nums.length; i++)
-            L[i] = L[i-1] * nums[i-1];
-        R[nums.length-1] = 1;
+            part1[i] = part1[i-1] * nums[i-1];
         for (int i = nums.length - 2; i >= 0; i--)
-            R[i] = R[i+1] * nums[i+1];
+            part2[i] = part2[i+1] * nums[i+1];
         int[] res = new int[nums.length];
         for (int i = 0; i < nums.length; i++)
-            res[i] = L[i] * R[i];
+            res[i] = part1[i] * part2[i];
         return res;
     }
 ```
@@ -664,10 +664,10 @@ LeetCode 热题 100 Java 常规题解
         ListNode pre = null;
         ListNode cur = head;
         while(cur != null) {
-            ListNode next = cur.next;
+            ListNode temp = cur.next;
             cur.next = pre;
             pre = cur;
-            cur = next;
+            cur = temp;
         }
         return pre;
     }
@@ -721,6 +721,26 @@ LeetCode 热题 100 Java 常规题解
 ```
 
 ### 148.排序链表
+
+```java
+	// 暴力
+	public ListNode sortList(ListNode head) {
+        List<Integer> list = new ArrayList<>();
+        ListNode dummy = head;
+        while (dummy != null) {
+            list.add(dummy.val);
+            dummy = dummy.next;
+        }
+        Collections.sort(list);
+        dummy = head;
+        int i = 0;
+        while (dummy != null) {
+            dummy.val = list.get(i++);
+            dummy = dummy.next;
+        }
+        return head;
+    }
+```
 
 ```java
 	// logN 空间
@@ -897,7 +917,6 @@ LeetCode 热题 100 Java 常规题解
 ```java
     public TreeNode invertTree(TreeNode root) {
         if (root == null) return null;
-
         TreeNode node = root.left;
         root.left = root.right;
         root.right = node;
@@ -1120,17 +1139,17 @@ LeetCode 热题 100 Java 常规题解
     List<Integer> path = new ArrayList<>();
     List<List<Integer>> res = new ArrayList<>();
     public List<List<Integer>> pathSum(TreeNode root, int targetSum) {
-        recur(root, targetSum);
+        backtracking(root, targetSum);
         return res;
     }
-    public void recur(TreeNode root, int targetSum) {
+    public void backtracking(TreeNode root, int targetSum) {
         if (root == null) return;
-        path.add(root.val);
         targetSum -= root.val;
-        if (targetSum == 0 && root.left == null && root.right == null)
-            res.add(new ArrayList<Integer>(path));
-        recur(root.left, targetSum);
-        recur(root.right, targetSum);
+        path.add(root.val);
+        if (root.left == null && root.right == null && targetSum == 0)
+            res.add(new ArrayList<>(path));
+        backtracking(root.left, targetSum);
+        backtracking(root.right, targetSum);
         path.removeLast();
     }
 ```
@@ -1174,13 +1193,13 @@ LeetCode 热题 100 Java 常规题解
 ```java
     int res = Integer.MIN_VALUE;
     public int maxPathSum(TreeNode root) {
-        helper(root);
+        order(root);
         return res;
     }
-    public int helper(TreeNode root) {
+    public int order(TreeNode root) {
         if (root == null) return 0;
-        int leftMax = Math.max(helper(root.left), 0);
-        int rightMax = Math.max(helper(root.right), 0);
+        int leftMax = Math.max(order(root.left), 0);
+        int rightMax = Math.max(order(root.right), 0);
         res = Math.max(res, root.val + leftMax + rightMax);
         return root.val + Math.max(leftMax, rightMax);
     }
@@ -1393,12 +1412,11 @@ LeetCode 热题 100 Java 常规题解
         backtracking(nums, 0);
         return res;
     }
-    public void backtracking(int[] nums, int startIndex) {
+    public void backtracking(int[] nums, int idx) {
         res.add(new ArrayList<>(path));
-        if (startIndex >= nums.length) return;
-        for (int i = startIndex; i < nums.length; i++) {
+        for (int i = idx; i < nums.length; i++) {
             path.add(nums[i]);
-            backtracking(nums, i+1);
+            backtracking(nums, i + 1);
             path.removeLast();
         }
     }
@@ -1432,20 +1450,19 @@ LeetCode 热题 100 Java 常规题解
 ### 39.组合总和
 
 ```java
-	List<Integer> path = new ArrayList<>();
-    List<List<Integer>> res = new ArrayList<>();    
+    List<Integer> path = new ArrayList<>();
+    List<List<Integer>> res = new ArrayList<>();
     public List<List<Integer>> combinationSum(int[] candidates, int target) {
-        backtrack(candidates, target, 0, 0);
+        backtracking(candidates, target, 0, 0);
         return res;
     }
-
-    public void backtrack(int[] candidates, int target, int curSum, int idx) {
+    public void backtracking(int[] candidates, int target, int curSum, int idx) {
         if (curSum == target)
             res.add(new ArrayList<>(path));
         for (int i = idx; i < candidates.length; i++) {
-            if (curSum+candidates[i] > target) continue;
+            if (curSum + candidates[i] > target) continue;
             path.add(candidates[i]);
-            backtrack(candidates, target, curSum+candidates[i], i);
+            backtracking(candidates, target, curSum + candidates[i], i);
             path.removeLast();
         }
     }
@@ -1454,26 +1471,26 @@ LeetCode 热题 100 Java 常规题解
 ### 22.括号生成
 
 ```java
+    int left = 0, right = 0;
     List<String> res = new ArrayList<>();
-    int left, right;
     StringBuilder sb = new StringBuilder();
     public List<String> generateParenthesis(int n) {
-        backtrack(n);
+        backtracking(n);
         return res;
     }
-    public void backtrack(int n) {
+    public void backtracking(int n) {
         if (right == n) res.add(sb.toString());
         if (left < n) {
             left++;
             sb.append("(");
-            backtrack(n);
+            backtracking(n);
             sb.deleteCharAt(sb.length()-1);
             left--;
         }
         if (right < left) {
             right++;
             sb.append(")");
-            backtrack(n);
+            backtracking(n);
             sb.deleteCharAt(sb.length()-1);
             right--;
         }
@@ -1546,10 +1563,10 @@ LeetCode 热题 100 Java 常规题解
         char[][] board = new char[n][n];
         for (char[] ch : board) Arrays.fill(ch, '.');
         res = new ArrayList<>();
-        backtrack(n, 0, board);
+        backtracking(n, 0, board);
         return res;
     }
-    public void backtrack(int n, int row, char[][] board) {
+    public void backtracking(int n, int row, char[][] board) {
         if (row == n) {
             res.add(Array2List(board));
             return;
@@ -1557,7 +1574,7 @@ LeetCode 热题 100 Java 常规题解
         for (int col = 0; col < n; ++col) {
             if (valid(row, col, n, board)) {
                 board[row][col] = 'Q';
-                backtrack(n, row+1, board);
+                backtracking(n, row+1, board);
                 board[row][col] = '.';
             }
         }
@@ -1685,6 +1702,7 @@ LeetCode 热题 100 Java 常规题解
 ### 4.寻找两个正序数组的中位数
 
 ```java
+	// O((m + n) log(m + n))
     public double findMedianSortedArrays(int[] nums1, int[] nums2) {
         int m = nums1.length, n = nums2.length;
         int[] merged = new int[m + n];
@@ -1699,6 +1717,7 @@ LeetCode 热题 100 Java 常规题解
 ```
 
 ```java
+	// O(log(m + n))
     public double findMedianSortedArrays(int[] nums1, int[] nums2) {
         int len1 = nums1.length;
         int len2 = nums2.length;
@@ -1746,7 +1765,8 @@ LeetCode 热题 100 Java 常规题解
             if (ch == '(') stack.push(')');
             else if (ch == '{') stack.push('}');
             else if (ch == '[') stack.push(']');
-            else if (stack.isEmpty() || ch != stack.pop()) return false;
+            else if (stack.isEmpty() || ch != stack.pop())
+            	return false;
         }
         return true;
     }
@@ -1787,25 +1807,23 @@ LeetCode 热题 100 Java 常规题解
 
 ```java
     public String decodeString(String s) {
-        Stack<Integer> count = new Stack<>();
+        Stack<Integer> times = new Stack<>();
         Stack<String> str = new Stack<>();
         int num = 0;
         String cur = "";
-        for (int i = 0; i < s.length(); i++) {
-            char ch = s.charAt(i);
+        for (char ch : s.toCharArray()) {
             if (ch >= '0' && ch <= '9')
             	num = num * 10 + ch - '0';
             else if (ch == '[') {
-                count.push(num);
+                times.push(num);
                 num = 0;
                 str.push(cur);
                 cur = "";
             } else if (ch == ']') {
-                int times = count.pop();
+                int time = times.pop();
                 StringBuilder sb = new StringBuilder(str.pop());
-                while (times-- > 0) {
+                while (time-- > 0)
                 	sb.append(cur);
-                }
                 cur = sb.toString();
             } else {
             	cur += ch;
@@ -1934,7 +1952,8 @@ LeetCode 热题 100 Java 常规题解
         int cover = 0;
         for (int i = 0; i <= cover; i++) {
             cover = Math.max(cover, i + nums[i]);
-            if (cover >= nums.length - 1) return true;
+            if (cover >= nums.length - 1)
+            	return true;
         }
         return false;
     }
@@ -1962,14 +1981,11 @@ LeetCode 热题 100 Java 常规题解
     public List<Integer> partitionLabels(String s) {
         List<Integer> res = new ArrayList<>();
         int[] lastPos = new int[26];
-        for (int i = 0; i < s.length(); i++) {
-            char ch = s.charAt(i);
-            lastPos[ch - 'a'] = i;
-        }
+        for (int i = 0; i < s.length(); i++)
+            lastPos[s.charAt(i) - 'a'] = i;
         int start = 0, end = 0;
         for (int i = 0; i < s.length(); i++) {
-            char ch = s.charAt(i);
-            end = Math.max(end, lastPos[ch - 'a']);
+            end = Math.max(end, lastPos[s.charAt(i) - 'a']);
             if (i == end) {
                 res.add(end - start + 1);
                 start = end + 1;
@@ -1998,28 +2014,21 @@ LeetCode 热题 100 Java 常规题解
 ### 118.杨辉三角
 
 ```java
-	public List<List<Integer>> generate(int numRows) {
+    public List<List<Integer>> generate(int numRows) {
         List<List<Integer>> res = new ArrayList<>();
-        if (numRows == 0) return res;
-
-        List<Integer> row1 = new ArrayList<>();
-        row1.add(1);
-        res.add(row1);
+        List<Integer> row = new ArrayList<>();
+        row.add(1);
+        res.add(new ArrayList<>(row));
         if (numRows == 1) return res;
-
-        List<Integer> row2 = new ArrayList<>();
-        row2.add(1);
-        row2.add(1);
-        res.add(row2);
-
+        row.add(1);
+        res.add(new ArrayList<>(row));
+        if (numRows == 2) return res;
         for (int i = 2; i < numRows; i++) {
             List<Integer> preRow = res.get(i-1);
             List<Integer> curRow = new ArrayList<>();
             curRow.add(1);
-            for (int j = 1; j < preRow.size(); j++) {
-                int sum = preRow.get(j - 1) + preRow.get(j);
-                curRow.add(sum);
-            }
+            for (int j = 1; j < preRow.size(); j++)
+                curRow.add(preRow.get(j) + preRow.get(j-1));
             curRow.add(1);
             res.add(curRow);
         }
@@ -2132,12 +2141,12 @@ LeetCode 热题 100 Java 常规题解
         int sum = 0;
         for (int num : nums) sum += num;
         if (sum % 2 == 1) return false;
-        int target =  sum / 2;
+        int target = sum / 2;
         boolean[] dp = new boolean[target+1];
         dp[0] = true;
         for (int num : nums)
-            for (int j = target; j >= num; j--)
-                dp[j] = dp[j] || dp[j - num];
+            for (int i = target; i >= num; i--)
+                dp[i] = dp[i] || dp[i - num];
         return dp[target];
     }
 ```
@@ -2212,16 +2221,16 @@ LeetCode 热题 100 Java 常规题解
 
 ```java
     public int minPathSum(int[][] grid) {
-        int[][] dp = new int[grid.length][grid[0].length];
-        dp[0][0] = grid[0][0];
+        int[][] memo = new int[grid.length][grid[0].length];
+        memo[0][0] = grid[0][0];
         for (int i = 1; i < grid.length; i++)
-        	dp[i][0] = dp[i-1][0] + grid[i][0];
+            memo[i][0] = memo[i-1][0] + grid[i][0];
         for (int i = 1; i < grid[0].length; i++)
-        	dp[0][i] = dp[0][i-1] + grid[0][i];
+            memo[0][i] = memo[0][i-1] + grid[0][i];
         for (int i = 1; i < grid.length; i++)
             for (int j = 1; j < grid[0].length; j++)
-                dp[i][j] = grid[i][j] + Math.min(dp[i-1][j], dp[i][j-1]);
-        return dp[grid.length-1][grid[0].length-1];
+                memo[i][j] = grid[i][j] + Math.min(memo[i-1][j], memo[i][j-1]);
+        return memo[grid.length - 1][grid[0].length - 1];
     }
 ```
 
@@ -2326,9 +2335,23 @@ LeetCode 热题 100 Java 常规题解
 ### 169.多数元素
 
 ```java
+	// O(nlogn)
     public int majorityElement(int[] nums) {
         Arrays.sort(nums);
         return nums[nums.length / 2];
+    }
+```
+
+```java
+	// O(n)
+	public int majorityElement(int[] nums) {
+        int candidate = 0, count = 0;
+        for (int num : nums) {
+            if (count == 0)
+                candidate = num;
+            count += (num == candidate) ? 1 : -1;
+        }
+        return candidate;
     }
 ```
 
@@ -2338,16 +2361,12 @@ LeetCode 热题 100 Java 常规题解
     public void sortColors(int[] nums) {
         int left = 0, right = nums.length - 1, i = 0;
         while (i <= right) {
-            if (nums[i] == 0){
-                swap(nums, i, left);
-                left++;
+            if (nums[i] == 0)
+                swap(nums, i++, left++);
+            else if (nums[i] == 1)
                 i++;
-            } else if (nums[i] == 1) {
-                i++;
-            } else {
-                swap(nums, i, right);
-                right--;
-            }
+            else
+                swap(nums, i, right--);
         }
     }
     public void swap(int[] nums, int i, int j) {
