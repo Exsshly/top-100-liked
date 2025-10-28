@@ -212,22 +212,18 @@ LeetCode 热题 100 Java 常规题解
 
 ```java
     public int subarraySum(int[] nums, int k) {
-        int count = 0;
         int[] sums = new int[nums.length];
-        Map<Integer, Integer> map = new HashMap<>();
-
         sums[0] = nums[0];
         for (int i = 1; i < nums.length; i++)
-            sums[i] = nums[i] + sums[i-1];
-
+            sums[i] = sums[i-1] + nums[i];
+        Map<Integer, Integer> map = new HashMap<>();
         map.put(0, 1);
-
+        int res = 0;
         for (int sum : sums) {
-            count += map.getOrDefault(sum - k, 0);
+            res += map.getOrDefault(sum - k, 0);
             map.put(sum, map.getOrDefault(sum, 0) + 1);
         }
-        
-        return count;
+        return res;
     }
 ```
 
@@ -338,14 +334,13 @@ LeetCode 热题 100 Java 常规题解
         reverse(nums, 0, k - 1);
         reverse(nums, k, nums.length - 1);
     }
-    public void reverse(int[] nums, int start, int end) {
-        int T;
-        while (start < end) {
-            T = nums[start];
-            nums[start] = nums[end];
-            nums[end] = T;
-            start++;
-            end--;
+    public void reverse(int[] nums, int left, int right) {
+        while (left < right) {
+            int T = nums[left];
+            nums[left] = nums[right];
+            nums[right] = T;
+            left++;
+            right--;
         }
     }
 ```
@@ -1077,19 +1072,19 @@ LeetCode 热题 100 Java 常规题解
     
 ```java
 	// O(n)
-	List<Integer> arr = new ArrayList<>();
+	List<TreeNode> arr = new ArrayList<>();
     public void flatten(TreeNode root) {
         preorder(root);
         TreeNode cur = root;
         for (int i = 1; i < arr.size(); i++) {
             cur.left = null;
-            cur.right = new TreeNode(arr.get(i));
+            cur.right = arr.get(i);
             cur = cur.right;
         }
     }
     public void preorder(TreeNode root) {
         if (root == null) return;
-        arr.add(root.val);
+        arr.add(root);
         preorder(root.left);
         preorder(root.right);
     }
@@ -1121,9 +1116,10 @@ LeetCode 热题 100 Java 常规题解
     }
 ```
 
-### 112.路径总和Ⅰ
+### 112.路径总和
 
 ```java
+	// 递归
     public boolean hasPathSum(TreeNode root, int targetSum) {
         if (root == null) return false;
         targetSum -= root.val;
@@ -1133,23 +1129,39 @@ LeetCode 热题 100 Java 常规题解
     }
 ```
 
+```java
+	// DFS
+	public boolean hasPathSum(TreeNode root, int targetSum) {
+        if (root == null) return false;
+        return order(root, targetSum, 0);
+    }
+    public boolean order(TreeNode root, int targetSum, int curSum) {
+        if (root == null) return false;
+        curSum += root.val;
+        if (root.left == null && root.right == null)
+            return curSum == targetSum;
+        return order(root.left, targetSum, curSum) || order(root.right, targetSum, curSum);
+    }
+```
+
 ### 113.路径总和Ⅱ
 
 ```java
     List<Integer> path = new ArrayList<>();
     List<List<Integer>> res = new ArrayList<>();
     public List<List<Integer>> pathSum(TreeNode root, int targetSum) {
-        backtracking(root, targetSum);
+        if (root == null) return res;
+        backtracking(root, targetSum, 0);
         return res;
     }
-    public void backtracking(TreeNode root, int targetSum) {
+    public void backtracking(TreeNode root, int targetSum, int curSum) {
         if (root == null) return;
-        targetSum -= root.val;
+        curSum += root.val;
         path.add(root.val);
-        if (root.left == null && root.right == null && targetSum == 0)
+        if (root.left == null && root.right == null && curSum == targetSum)
             res.add(new ArrayList<>(path));
-        backtracking(root.left, targetSum);
-        backtracking(root.right, targetSum);
+        backtracking(root.left, targetSum, curSum);
+        backtracking(root.right, targetSum, curSum);
         path.removeLast();
     }
 ```
@@ -1159,18 +1171,19 @@ LeetCode 热题 100 Java 常规题解
 ```java
     public int pathSum(TreeNode root, int targetSum) {
         if (root == null) return 0;
-        int res = countPath(root, targetSum);
+        int res = dfs(root, targetSum, 0);
         res += pathSum(root.left, targetSum);
         res += pathSum(root.right, targetSum);
         return res;
     }
-    public int countPath(TreeNode node, int targetSum) {
-        if (node == null) return 0;
+    public int dfs(TreeNode root, int targetSum, long curSum) {
+        if (root == null) return 0;
+        curSum += root.val;
         int count = 0;
-        if (targetSum == node.val)
+        if (targetSum == curSum)
             count++;
-        count += countPath(node.left, targetSum - node.val);
-        count += countPath(node.right, targetSum - node.val);
+        count += dfs(root.left, targetSum, curSum);
+        count += dfs(root.right, targetSum, curSum);
         return count;
     }
 ```
@@ -1528,28 +1541,28 @@ LeetCode 热题 100 Java 常规题解
 ### 131.分割回文串
 
 ```java
+    List<String> path = new ArrayList<>();
     List<List<String>> res = new ArrayList<>();
-    Deque<String> que = new ArrayDeque<>();
-    int length = 0;
     public List<List<String>> partition(String s) {
-        length = s.length();
         backtracking(s, 0);
         return res;
     }
     public void backtracking(String s, int idx) {
-        if (idx >= length) res.add(new ArrayList<>(que));
-        for (int i = idx; i < length; i++) {
+        if (idx >= s.length()) {
+            res.add(new ArrayList<>(path));
+            return;
+        }
+        for (int i = idx; i < s.length(); i++) {
             if (judge(s, idx, i)) {
-                String str = s.substring(idx, i+1);
-                que.addLast(str);
-            } else continue;
-            backtracking(s, i + 1);
-            que.removeLast();
+                path.add(s.substring(idx, i+1));
+                backtracking(s, i + 1);
+                path.removeLast();
+            }
         }
     }
-    public boolean judge(String s, int p, int q) {
-        while (p < q)
-            if (s.charAt(p++) != s.charAt(q--))
+    public boolean judge(String s, int left, int right) {
+        while (left < right)
+            if (s.charAt(left++) != s.charAt(right--))
                 return false;
         return true;
     }
@@ -1758,15 +1771,14 @@ LeetCode 热题 100 Java 常规题解
 
 ```java
     public boolean isValid(String s) {
-        Deque<Character> stack = new ArrayDeque<>();
+        Stack<Character> stack = new Stack<>();
         int i = 0;
         while (i < s.length()) {
             char ch = s.charAt(i++);
             if (ch == '(') stack.push(')');
             else if (ch == '{') stack.push('}');
             else if (ch == '[') stack.push(']');
-            else if (stack.isEmpty() || ch != stack.pop())
-            	return false;
+            else if (stack.isEmpty() || ch != stack.pop()) return false;
         }
         return true;
     }
@@ -1808,7 +1820,7 @@ LeetCode 热题 100 Java 常规题解
 ```java
     public String decodeString(String s) {
         Stack<Integer> times = new Stack<>();
-        Stack<String> str = new Stack<>();
+        Stack<String> strs = new Stack<>();
         int num = 0;
         String cur = "";
         for (char ch : s.toCharArray()) {
@@ -1817,11 +1829,11 @@ LeetCode 热题 100 Java 常规题解
             else if (ch == '[') {
                 times.push(num);
                 num = 0;
-                str.push(cur);
+                strs.push(cur);
                 cur = "";
             } else if (ch == ']') {
                 int time = times.pop();
-                StringBuilder sb = new StringBuilder(str.pop());
+                StringBuilder sb = new StringBuilder(strs.pop());
                 while (time-- > 0)
                 	sb.append(cur);
                 cur = sb.toString();
@@ -1837,13 +1849,11 @@ LeetCode 热题 100 Java 常规题解
 
 ```java
     public int[] dailyTemperatures(int[] temperatures) {
-        Stack<Integer> stack = new Stack<>();
         int[] res = new int[temperatures.length];
+        Stack<Integer> stack = new Stack<>();
         for (int i = 0; i < temperatures.length; i++) {
-            while (!stack.isEmpty() && temperatures[i] > temperatures[stack.peek()]) {
-                int idx = stack.pop();
-                res[idx] = i - idx;
-            }
+            while (!stack.isEmpty() && temperatures[i] > temperatures[stack.peek()])
+                res[stack.peek()] = i - stack.pop();
             stack.push(i);
         }
         return res;
@@ -1874,6 +1884,7 @@ LeetCode 热题 100 Java 常规题解
 ### 215.数组中的第K个最大元素
 
 ```java
+	// O(n * log(n))
     public int findKthLargest(int[] nums, int k) {
         PriorityQueue<Integer> pq = new PriorityQueue<>((a, b) -> b - a);
         for (int num : nums)
@@ -2084,6 +2095,7 @@ LeetCode 热题 100 Java 常规题解
 ### 139.单词拆分
 
 ```java
+	// 动态规划
     public boolean wordBreak(String s, List<String> wordDict) {
         Set<String> set = new HashSet<>(wordDict);
         int n = s.length();
@@ -2096,6 +2108,25 @@ LeetCode 热题 100 Java 常规题解
                     break;
                 }
         return dp[n];
+    }
+```
+
+``` java
+	// 回溯
+    Set<String> set;
+    public boolean wordBreak(String s, List<String> wordDict) {
+        set = new HashSet<>(wordDict);
+        return backtracking(s, 0);
+    }
+    public boolean backtracking(String s, int idx) {
+        if (idx == s.length()) return true;
+        for (int i = idx + 1; i <= s.length(); i++) {
+            if (set.contains(s.substring(idx, i))) {
+                if (backtracking(s, i))
+                    return true;
+            }
+        }
+        return false;
     }
 ```
 
@@ -2127,7 +2158,7 @@ LeetCode 热题 100 Java 常规题解
         for (int i = 1; i < nums.length; i++) {
             int curMaxDP = maxDP, curMinDP = minDP;
             maxDP = Math.max(nums[i], Math.max(nums[i] * curMaxDP, nums[i] * curMinDP));
-            minDP = Math.max(nums[i], Math.min(nums[i] * curMaxDP, nums[i] * curMinDP));
+            minDP = Math.min(nums[i], Math.min(nums[i] * curMaxDP, nums[i] * curMinDP));
             res = Math.max(res, maxDP);
         }
         return res;
@@ -2154,6 +2185,7 @@ LeetCode 热题 100 Java 常规题解
 ### 32.最长有效括号
 
 ```java
+	// 动态规划
     public int longestValidParentheses(String s) {
         int length = s.length();
         if (s == null || length < 2) return 0;
@@ -2176,6 +2208,40 @@ LeetCode 热题 100 Java 常规题解
             res = Math.max(res, dp[i]);
         }
         return res;
+    }
+```
+
+```java
+	// 双指针
+    public int longestValidParentheses(String s) {
+        int left = 0, right = 0;
+        int maxLen = 0;
+        int n = s.length();
+        for (int i = 0; i < n; i++) {
+            if (s.charAt(i) == '(')
+                left++;
+            else
+                right++;
+
+            if (left == right)
+                maxLen = Math.max(maxLen, right * 2);
+            else if (right > left)
+                left = right = 0;
+        }
+
+        left = right = 0;
+        for (int i = n - 1; i >= 0; i--) {
+            if (s.charAt(i) == '(')
+                left++;
+            else
+                right++;
+
+            if (left == right)
+                maxLen = Math.max(maxLen, right * 2);
+            else if (left > right)
+                left = right = 0;
+        }
+        return maxLen;
     }
 ```
 
